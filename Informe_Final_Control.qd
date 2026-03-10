@@ -1,19 +1,6 @@
 # Informe Final de Control: Secadero de Yerba Mate
 
-## Índice
-
-1. [Definición del problema](#i-definición-del-problema)
-   1.1. [Descripción general del proceso](#i1-descripción-general-del-proceso)
-   1.2. [Principio de funcionamiento del sistema](#i2-principio-de-funcionamiento-del-sistema)
-   1.3. [Determinación de qué se busca controlar](#i3-determinación-de-qué-se-busca-controlar)
-   1.4. [Determinación de cómo se va a medir la variable de salida](#i4-determinación-de-cómo-se-va-a-medir-la-variable-de-salida)
-   1.5. [Determinación de cómo se ejecutará la acción de control](#i5-determinación-de-cómo-se-ejecutará-la-acción-de-control)
-   1.6. [Determinación de las variables del sistema y sus unidades de medida](#i6-determinación-de-las-variables-del-sistema-y-sus-unidades-de-medida)
-   1.7. [Determinación de posibles perturbaciones](#i7-determinación-de-posibles-perturbaciones)
-   1.8. [Identificación de las no linealidades involucradas](#i8-identificación-de-las-no-linealidades-involucradas)
-   1.9. [Nivel de las señales de entrada y salida](#i9-nivel-de-las-señales-de-entrada-y-salida)
-   1.10. [Formulación del problema de control](#i10-formulación-del-problema-control)
-2. [Bibliografía](#5-bibliografía)
+.tableofcontents
 
 ---
 
@@ -76,19 +63,73 @@ Académicamente, esta decisión resulta conveniente porque permite representar e
 
 A continuación se identifican las variables principales del sistema propuesto:
 
-| Variable | Descripción | Unidad |
-| :--- | :--- | :--- |
-| $T_{ref}$ | Temperatura de referencia o consigna | °C |
-| $T(t)$ | Temperatura real del aire en la cámara de secado | °C |
-| $T_m(t)$ | Temperatura medida por el sistema sensor-acondicionador | °C o V |
-| $e(t) = T_{ref} - T_m$ | Error de control | °C o V |
-| $u(t)$ | Señal de control aplicada al actuador | V, mA o % |
-| $Q(t)$ | Potencia térmica suministrada al secadero | W o kW |
-| $m_p(t)$ | Flujo másico de producto que ingresa al secadero | kg/s |
-| $H_i(t)$ | Humedad inicial del producto | % b.h. |
-| $H_f(t)$ | Humedad final del producto | % b.h. |
-| $T_{amb}(t)$ | Temperatura ambiente | °C |
-| $q_a(t)$ | Caudal de aire de secado | m³/s o kg/s |
+.html
+  <table>
+    <thead>
+      <tr>
+        <th align="left">Variable</th>
+        <th align="left">Descripción</th>
+        <th align="left">Unidad</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><i>T</i><sub>ref</sub></td>
+        <td>Temperatura de referencia o consigna</td>
+        <td>°C</td>
+      </tr>
+      <tr>
+        <td><i>T</i>(<i>t</i>)</td>
+        <td>Temperatura real del aire en la cámara de secado</td>
+        <td>°C</td>
+      </tr>
+      <tr>
+        <td><i>T</i><sub>m</sub>(<i>t</i>)</td>
+        <td>Temperatura medida por el sistema sensor-acondicionador</td>
+        <td>°C o V</td>
+      </tr>
+      <tr>
+        <td><i>e</i>(<i>t</i>) = <i>T</i><sub>ref</sub> - <i>T</i><sub>m</sub></td>
+        <td>Error de control</td>
+        <td>°C o V</td>
+      </tr>
+      <tr>
+        <td><i>u</i>(<i>t</i>)</td>
+        <td>Señal de control aplicada al actuador</td>
+        <td>V, mA o %</td>
+      </tr>
+      <tr>
+        <td><i>Q</i>(<i>t</i>)</td>
+        <td>Potencia térmica suministrada al secadero</td>
+        <td>W o kW</td>
+      </tr>
+      <tr>
+        <td><i>m</i><sub>p</sub>(<i>t</i>)</td>
+        <td>Flujo másico de producto que ingresa al secadero</td>
+        <td>kg/s</td>
+      </tr>
+      <tr>
+        <td><i>H</i><sub>i</sub>(<i>t</i>)</td>
+        <td>Humedad inicial del producto</td>
+        <td>% b.h.</td>
+      </tr>
+      <tr>
+        <td><i>H</i><sub>f</sub>(<i>t</i>)</td>
+        <td>Humedad final del producto</td>
+        <td>% b.h.</td>
+      </tr>
+      <tr>
+        <td><i>T</i><sub>amb</sub>(<i>t</i>)</td>
+        <td>Temperatura ambiente</td>
+        <td>°C</td>
+      </tr>
+      <tr>
+        <td><i>q</i><sub>a</sub>(<i>t</i>)</td>
+        <td>Caudal de aire de secado</td>
+        <td>m³/s o kg/s</td>
+      </tr>
+    </tbody>
+  </table>
 
 En el presente estudio:
 
