@@ -1,0 +1,184 @@
+# Informe Final de Control: Secadero de Yerba Mate
+
+## Índice
+
+1. [Definición del problema](#i-definición-del-problema)
+   1.1. [Descripción general del proceso](#i1-descripción-general-del-proceso)
+   1.2. [Principio de funcionamiento del sistema](#i2-principio-de-funcionamiento-del-sistema)
+   1.3. [Determinación de qué se busca controlar](#i3-determinación-de-qué-se-busca-controlar)
+   1.4. [Determinación de cómo se va a medir la variable de salida](#i4-determinación-de-cómo-se-va-a-medir-la-variable-de-salida)
+   1.5. [Determinación de cómo se ejecutará la acción de control](#i5-determinación-de-cómo-se-ejecutará-la-acción-de-control)
+   1.6. [Determinación de las variables del sistema y sus unidades de medida](#i6-determinación-de-las-variables-del-sistema-y-sus-unidades-de-medida)
+   1.7. [Determinación de posibles perturbaciones](#i7-determinación-de-posibles-perturbaciones)
+   1.8. [Identificación de las no linealidades involucradas](#i8-identificación-de-las-no-linealidades-involucradas)
+   1.9. [Nivel de las señales de entrada y salida](#i9-nivel-de-las-señales-de-entrada-y-salida)
+   1.10. [Formulación del problema de control](#i10-formulación-del-problema-control)
+2. [Bibliografía](#5-bibliografía)
+
+---
+
+## I. Definición del problema
+
+### I.1. Descripción general del proceso
+
+La yerba mate constituye una de las producciones agroindustriales más representativas del noreste argentino, con fuerte concentración en la provincia de Misiones y, en menor medida, en el nordeste de Corrientes. Su elaboración industrial comprende una secuencia de etapas que transforma la hoja verde cosechada en un producto estable y apto para su posterior canchado, estacionamiento, molienda y envasado. Entre dichas etapas, el sapecado y el secado resultan determinantes, ya que permiten disminuir el contenido de agua del material vegetal y detener los procesos biológicos que degradarían el producto.
+
+De acuerdo con la bibliografía técnica y de divulgación sectorial, luego del sapecado la yerba mate ingresa al proceso de secado, donde mediante aire caliente se elimina gran parte de la humedad remanente. En secaderos continuos, este proceso suele realizarse mediante cintas transportadoras, sobre las cuales el material vegetal avanza mientras recibe el efecto del flujo de aire caliente. El objetivo tecnológico es reducir la humedad del producto hasta valores compatibles con su conservación y procesamiento posterior; distintas fuentes del sector ubican esta reducción, según el criterio considerado, en torno al 4–6 % respecto del peso verde original o bien en valores finales de humedad regulados para la yerba canchada.
+
+Desde el punto de vista de la teoría de control, el secadero puede interpretarse como una planta térmica con transporte de materia, en la que existe una variable de proceso que debe mantenerse dentro de un rango adecuado para asegurar la calidad del producto y la eficiencia energética del sistema. Entre las magnitudes potencialmente controlables se encuentran la temperatura del aire de secado, la humedad final del producto, el caudal de aire caliente y la velocidad de avance de la cinta. Para el presente trabajo se selecciona como variable principal de control la temperatura del aire en la cámara de secado, por tratarse de una variable físicamente relevante, medible en forma continua y directamente vinculada con la evolución térmica del proceso. Esta elección, además, permite formular un modelo de planta razonable y abordar el diseño de un controlador con las herramientas clásicas de la asignatura.
+
+### I.2. Principio de funcionamiento del sistema
+
+El sistema considerado corresponde a un secadero continuo a cinta. Su funcionamiento puede describirse del siguiente modo: la yerba previamente cosechada y sapecada ingresa al secadero y es distribuida sobre una cinta transportadora. Mientras avanza, el material vegetal es sometido a una corriente de aire caliente generada por un sistema térmico, típicamente asociado a una cámara de combustión e intercambio de calor. La transferencia de energía desde el aire al producto promueve la evaporación de la humedad contenida en las hojas y ramas finas. La permanencia del material dentro del secadero, junto con la temperatura del aire y el régimen de circulación, determinan el grado de secado alcanzado a la salida.
+
+En términos de control automático, el sistema opera bajo la lógica clásica de lazo cerrado. Se fija una temperatura de referencia para el aire de secado; un sensor mide la temperatura real dentro de la cámara; esa medición se acondiciona y se compara con la consigna; el error resultante alimenta a un controlador; y el controlador actúa sobre el elemento final de control, modificando la potencia térmica suministrada al secadero. De esta forma, el sistema intenta rechazar perturbaciones y mantener la temperatura del proceso cercana al valor deseado.
+
+### I.3. Determinación de qué se busca controlar
+
+En este trabajo se busca controlar la **temperatura del aire de secado en el interior del secadero**.
+
+La elección de esta variable responde a razones técnicas y metodológicas. En primer lugar, la temperatura del aire influye de manera directa sobre la transferencia de calor al producto y, por ende, sobre la rapidez con la que se elimina la humedad. En segundo lugar, se trata de una variable que puede medirse en línea mediante instrumentación industrial estándar. Finalmente, su control es compatible con el uso de modelos dinámicos térmicos de complejidad moderada, adecuados para un trabajo integrador de Sistemas de Control.
+
+El objetivo del sistema de control será entonces mantener la temperatura del aire en torno a un valor de consigna previamente establecido, pese a la presencia de perturbaciones tales como cambios en la carga de yerba, variaciones de humedad inicial o fluctuaciones de las condiciones ambientales. Desde una perspectiva de ingeniería, esto persigue simultáneamente tres fines:
+
+- Mejorar la uniformidad del proceso de secado,
+- Preservar la calidad del producto final, y
+- Evitar un consumo energético excesivo.
+
+### I.4. Determinación de cómo se va a medir la variable de salida
+
+La variable de salida seleccionada, esto es, la temperatura del aire de secado, puede medirse mediante una **termocupla industrial**, preferentemente de tipo K por su amplio rango de operación y uso extendido en procesos térmicos. Las termocuplas generan una pequeña tensión termoeléctrica dependiente de la temperatura; ese principio de funcionamiento está basado en el efecto Seebeck. Las fuentes técnicas consultadas destacan que este tipo de sensores produce señales de muy bajo nivel y que su comportamiento no es estrictamente lineal respecto de la temperatura.
+
+Debido a ello, la medición requiere una etapa de **acondicionamiento de señal**. En una implementación industrial típica, la señal de la termocupla se ingresa a un transmisor de temperatura, cuya función es:
+
+- Amplificar la señal de entrada,
+- Compensar la unión fría,
+- Linealizar la relación temperatura-señal,
+- Filtrar perturbaciones eléctricas,
+- Convertir la medición a una señal normalizada de instrumentación, como 4–20 mA o 0–10 V.
+
+Para fines de modelado y simulación, se asumirá que el conjunto sensor + transmisor puede representarse, en primera aproximación, como un bloque de ganancia estática, o eventualmente como un sistema de primer orden si se desea contemplar la dinámica propia del elemento de medición. La salida acondicionada será la señal de realimentación que ingresará al comparador del lazo de control.
+
+### I.5. Determinación de cómo se ejecutará la acción de control
+
+La acción de control se ejecutará actuando sobre **la potencia térmica suministrada al secadero**. Conceptualmente, esto puede implementarse mediante distintos dispositivos, según la arquitectura adoptada por la planta industrial:
+
+- Modulación del caudal de combustible hacia el quemador,
+- Regulación del flujo de aire de combustión,
+- Accionamiento de una válvula de control,
+- Variación de la potencia en resistencias eléctricas,
+- Control de velocidad de ventiladores que intervienen en la transferencia térmica.
+
+Para este trabajo se considerará que la variable manipulada es la potencia térmica entregada al aire de secado, representada de manera simplificada por una señal de mando proveniente del controlador. En términos físicos, el actuador será el conjunto formado por el elemento final de control y el sistema generador de calor. Su misión será modificar la energía térmica ingresada al proceso para compensar desviaciones de temperatura respecto de la consigna.
+
+Académicamente, esta decisión resulta conveniente porque permite representar el actuador mediante una ganancia y/o una dinámica de primer orden, preservando el realismo físico del sistema sin volver excesivamente complejo el modelo matemático.
+### I.6. Determinación de las variables del sistema y sus unidades de medida
+
+A continuación se identifican las variables principales del sistema propuesto:
+
+| Variable | Descripción | Unidad |
+| :--- | :--- | :--- |
+| $T_{ref}$ | Temperatura de referencia o consigna | °C |
+| $T(t)$ | Temperatura real del aire en la cámara de secado | °C |
+| $T_m(t)$ | Temperatura medida por el sistema sensor-acondicionador | °C o V |
+| $e(t) = T_{ref} - T_m$ | Error de control | °C o V |
+| $u(t)$ | Señal de control aplicada al actuador | V, mA o % |
+| $Q(t)$ | Potencia térmica suministrada al secadero | W o kW |
+| $m_p(t)$ | Flujo másico de producto que ingresa al secadero | kg/s |
+| $H_i(t)$ | Humedad inicial del producto | % b.h. |
+| $H_f(t)$ | Humedad final del producto | % b.h. |
+| $T_{amb}(t)$ | Temperatura ambiente | °C |
+| $q_a(t)$ | Caudal de aire de secado | m³/s o kg/s |
+
+En el presente estudio:
+
+- **Variable controlada**: $T(t)$
+- **Variable manipulada**: $Q(t)$ o, en forma equivalente, la señal $u(t)$ aplicada al actuador
+- **Variable medida**: $T_m(t)$
+
+### I.7. Determinación de posibles perturbaciones
+
+Todo sistema real de secado está sometido a perturbaciones que modifican su respuesta y pueden alejarlo del punto de operación deseado. En el caso del secadero de yerba mate, las perturbaciones más relevantes son las siguientes:
+
+a) **Variación de la humedad inicial de la materia prima.**
+La yerba ingresada al secadero no presenta siempre el mismo contenido de agua. Un aumento de humedad implica mayor demanda energética para alcanzar el mismo grado de secado, lo que tiende a reducir la temperatura del aire si la potencia térmica no se ajusta adecuadamente.
+
+b) **Variación del caudal o de la masa de producto alimentado.**
+Cambios en la cantidad de material sobre la cinta modifican la carga térmica del sistema. Una mayor masa de yerba absorbe más energía y altera la dinámica del proceso.
+
+c) **Variaciones de la temperatura ambiente.**
+Las condiciones externas influyen sobre las pérdidas térmicas del secadero y sobre la temperatura inicial del aire de entrada.
+
+d) **Variaciones del flujo de aire caliente.**
+Cambios en ventiladores, compuertas o pérdidas de carga alteran la convección y, por lo tanto, la transferencia de calor hacia el producto.
+
+e) **Variaciones en la fuente de calor.**
+En secaderos basados en combustión, las fluctuaciones del combustible o del régimen de combustión pueden traducirse en cambios de potencia térmica efectiva.
+
+Estas perturbaciones justifican la necesidad de emplear un sistema de control realimentado en lugar de una estrategia puramente manual o a lazo abierto.
+
+### I.8. Identificación de las no linealidades involucradas
+
+El secadero de yerba mate no constituye una planta estrictamente lineal. Aun cuando en etapas posteriores del trabajo se adopte una aproximación lineal para su análisis y diseño, es importante reconocer las principales no linealidades físicas presentes en el sistema:
+
+a) **Relación no lineal entre la temperatura y la transferencia de calor.**
+Los fenómenos de convección, radiación e intercambio térmico con el producto no evolucionan linealmente en todo el rango operativo.
+
+b) **Relación no lineal entre temperatura y evaporación de humedad.**
+La cinética de secado del material vegetal depende de la temperatura, del contenido de humedad y de las condiciones de transporte de masa, por lo que la respuesta del sistema varía con el punto de operación.
+
+c) **No linealidad del sensor.**
+Las termocuplas presentan una relación tensión-temperatura no perfectamente lineal, razón por la cual se requiere linealización en el acondicionamiento de señal.
+
+d) **Saturación del actuador.**
+La potencia térmica disponible no puede aumentar indefinidamente; el actuador presenta límites físicos máximos y mínimos.
+
+e) **Dependencia de parámetros con la carga del proceso.**
+La constante de tiempo térmica efectiva del secadero puede variar con la cantidad de yerba sobre la cinta, con el caudal de aire y con el estado de operación general.
+
+En consecuencia, para el diseño del controlador será razonable trabajar con un modelo linealizado alrededor de un punto nominal de operación, dejando explícito que dicho modelo es una aproximación válida en un entorno de funcionamiento acotado.
+
+### I.9. Nivel de las señales de entrada y salida
+
+La guía solicita explicitar el nivel de las señales del sistema. Para el caso propuesto, puede adoptarse una normalización compatible con instrumentación industrial.
+
+**Señal de entrada o consigna:** temperatura de referencia $T_{ref}$, expresada en °C.
+En la implementación instrumental, dicha referencia puede representarse como una señal analógica normalizada, por ejemplo 0–10 V o 4–20 mA, asociada al rango operativo del secadero.
+
+**Señal de salida medida:** temperatura acondicionada $T_m$, proveniente del transmisor de temperatura.
+También puede representarse como 0–10 V o 4–20 mA, según el esquema de adquisición y control adoptado. Los transmisores industriales para termocuplas y RTD convierten justamente la señal débil del sensor en una señal robusta y estandarizada de proceso.
+
+**Señal de control:** salida del controlador hacia el actuador, normalmente expresada como señal eléctrica o neumática equivalente a un porcentaje de apertura, caudal o potencia.
+
+Para el desarrollo académico del modelo puede asumirse, por ejemplo, que:
+
+- 0 V representa la temperatura mínima del rango de operación,
+- 10 V representa la temperatura máxima del rango,
+- y que la salida del actuador modula la potencia térmica en forma proporcional dentro de ese mismo criterio de escalado.
+
+Esta aclaración es relevante porque permite vincular las magnitudes físicas con las señales empleadas en el diagrama de bloques y en la simulación.
+
+### I.10. Formulación del problema de control
+
+En función de lo expuesto, el problema de ingeniería puede formularse de la siguiente manera:
+
+Se desea diseñar un sistema de control automático para regular la temperatura del aire en un secadero continuo a cinta de yerba mate, de modo que dicha temperatura siga una consigna preestablecida con adecuado rechazo a perturbaciones, garantizando condiciones apropiadas para el secado del producto.
+
+Este problema integra los elementos fundamentales de la asignatura: identificación de variable controlada, sensor, actuador, perturbaciones, no linealidades, definición de señales y posterior construcción del modelo matemático de la planta.
+## 5. Bibliografía
+
+1. INYM – Folleto: Proceso de Elaboración de la Yerba Mate Argentina. Disponible en: [https://inym.org.ar/descargar/publicaciones/material-de-consulta/folletos/3080-folleto-proceso-de-elaboracion-de-la-yerba-mate-argentina.html](https://inym.org.ar/descargar/publicaciones/material-de-consulta/folletos/3080-folleto-proceso-de-elaboracion-de-la-yerba-mate-argentina.html)
+
+2. Ruta de la Yerba Mate – Proceso de Elaboración. Disponible en: [https://www.rutadelayerbamate.org.ar/yerba-mate/proceso-de-elaboracion/](https://www.rutadelayerbamate.org.ar/yerba-mate/proceso-de-elaboracion/)
+
+3. INTA – Los secaderos de yerba mate y las Buenas Prácticas de Manufactura. Disponible en: [https://repositorio.inta.gob.ar/xmlui/bitstream/handle/20.500.12123/1072/INTA_CRMisiones_EEACerroAzul_Arndt_G_Los_secaderos_de_yerba_mate.pdf?isAllowed=y&sequence=1](https://repositorio.inta.gob.ar/xmlui/bitstream/handle/20.500.12123/1072/INTA_CRMisiones_EEACerroAzul_Arndt_G_Los_secaderos_de_yerba_mate.pdf?isAllowed=y&sequence=1)
+
+4. Normativa Argentina / INYM – Resolución 287/2022. Disponible en: [https://www.argentina.gob.ar/normativa/nacional/resoluci%C3%B3n-287-2022-370884/texto](https://www.argentina.gob.ar/normativa/nacional/resoluci%C3%B3n-287-2022-370884/texto)
+
+5. OMEGA Engineering – Termopar: Tipos y Aplicaciones. Disponible en: [https://mx.omega.com/prodinfo/termopar.html](https://mx.omega.com/prodinfo/termopar.html)
+
+6. National Instruments – Signal Conditioning Requirements for Thermocouples. Disponible en: [https://www.ni.com/docs/en-US/bundle/ni-daqmx/page/sigcontherm.html](https://www.ni.com/docs/en-US/bundle/ni-daqmx/page/sigcontherm.html)
+
+7. National Instruments – Thermocouples. Disponible en: [https://www.ni.com/docs/en-US/bundle/ni-daqmx/page/thermocouples.html](https://www.ni.com/docs/en-US/bundle/ni-daqmx/page/thermocouples.html)
+
+8. National Instruments – Signal Conditioning. Disponible en: [https://www.ni.com/docs/en-US/bundle/ni-daqmx/page/sigcon.html](https://www.ni.com/docs/en-US/bundle/ni-daqmx/page/sigcon.html)
