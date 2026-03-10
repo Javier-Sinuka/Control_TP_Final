@@ -1,0 +1,2 @@
+- name: Setup Quarkdown
+  uses: quarkdown-labs/setup-quarkdown@v1.4.0
