@@ -1,0 +1,3 @@
+steps:
+  - uses: quarkdown-labs/setup-quarkdown@v1
+  - run: quarkdown c Informe_Final_Control.qd --pdf
