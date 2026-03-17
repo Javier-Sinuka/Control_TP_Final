@@ -1,3 +1,37 @@
-steps:
-  - uses: quarkdown-labs/setup-quarkdown@v1
-  - run: quarkdown c Informe_Final_Control.qd --pdf
+name: Build & Deploy Quarkdown
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Quarkdown
+        uses: quarkdown-labs/setup-quarkdown@v1
+
+      - name: Compile Quarkdown (HTML)
+        run: quarkdown c documento.qd
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./output
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
