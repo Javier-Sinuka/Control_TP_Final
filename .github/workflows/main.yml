@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -17,61 +17,19 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node (para Puppeteer)
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
       - name: Setup Quarkdown
         uses: quarkdown-labs/setup-quarkdown@v1
 
       - name: Compile Quarkdown (FULL SITE)
         run: |
+          rm -rf output
           mkdir -p output
           quarkdown c Informe_Final_Control.qd -o output/
 
-      - name: Install Puppeteer
+      - name: Debug output (opcional)
         run: |
-          npm install puppeteer
-
-      - name: Generate preview.png
-        run: |
-          cat << 'EOF' > generate-preview.js
-          const puppeteer = require('puppeteer');
-
-          (async () => {
-            const browser = await puppeteer.launch({
-              headless: true,
-              args: ['--no-sandbox', '--disable-setuid-sandbox'],
-              executablePath: '/usr/bin/google-chrome-stable'
-            });
-
-            const page = await browser.newPage();
-
-            await page.goto(`file://${process.cwd()}/output/index.html`, {
-              waitUntil: 'networkidle0'
-            });
-
-            await page.setViewport({ width: 1280, height: 800 });
-
-            await page.screenshot({
-              path: 'preview.png',
-              fullPage: true
-            });
-
-            await browser.close();
-          })();
-          EOF
-
-          node generate-preview.js
-
-      - name: Commit preview image
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add preview.png || true
-          git commit -m "auto: update preview" || true
-          git push || true
+          echo "Contenido generado:"
+          ls -R output
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
