@@ -2,7 +2,7 @@ name: Build & Deploy Quarkdown
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -20,30 +20,25 @@ jobs:
       - name: Setup Quarkdown
         uses: quarkdown-labs/setup-quarkdown@v1
 
-      - name: Compile Quarkdown (HTML)
-        run: |
-          mkdir -p output
-          quarkdown c Informe_Final_Control.qd
-          # Buscar el index generado y moverlo a la raíz
-          find output -name "index.html" -exec cp {} output/index.html \;
+      - name: Create output directory
+        run: mkdir -p output
 
-      - name: Verify output
+      - name: Compile Quarkdown (FULL SITE)
         run: |
-          echo "Contenido de output:"
-          ls -la output
+          quarkdown c Informe_Final_Control.qd -o output/
 
-      - name: Upload artifact
+      - name: Debug output (ver qué generó)
+        run: |
+          ls -R output
+
+      - name: Upload artifact (GitHub Pages)
         uses: actions/upload-pages-artifact@v3
         with:
-          path: output/
+          path: ./output
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-
-    permissions:
-      pages: write
-      id-token: write
 
     environment:
       name: github-pages
