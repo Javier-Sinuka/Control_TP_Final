@@ -20,15 +20,29 @@ jobs:
       - name: Setup Quarkdown
         uses: quarkdown-labs/setup-quarkdown@v1
 
-      - name: Compile Quarkdown (FULL SITE)
+      - name: Compile Quarkdown + FIX estructura
         run: |
           rm -rf output
           mkdir -p output
+
           quarkdown c Informe_Final_Control.qd -o output/
 
-      - name: Debug output (opcional)
-        run: |
-          echo "Contenido generado:"
+          echo "=== BEFORE FIX ==="
+          ls -R output
+
+          # 🔥 Detectar carpeta generada automáticamente
+          SUBDIR=$(find output -mindepth 1 -maxdepth 1 -type d)
+
+          # 🔥 Mover contenido al root
+          if [ -n "$SUBDIR" ]; then
+            mv "$SUBDIR"/* output/
+            rm -rf "$SUBDIR"
+          fi
+
+          # 🔥 evitar problemas con Jekyll
+          touch output/.nojekyll
+
+          echo "=== AFTER FIX ==="
           ls -R output
 
       - name: Upload Pages artifact
