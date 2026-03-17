@@ -21,7 +21,7 @@ jobs:
         uses: quarkdown-labs/setup-quarkdown@v1
 
       - name: Compile Quarkdown (HTML)
-        run: quarkdown c documento.qd
+        run: quarkdown c Informe_Final_Control.qd
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
