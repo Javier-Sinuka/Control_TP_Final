@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -14,24 +14,66 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Setup Node (para Puppeteer)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
       - name: Setup Quarkdown
         uses: quarkdown-labs/setup-quarkdown@v1
 
-      - name: Create output directory
-        run: mkdir -p output
-
       - name: Compile Quarkdown (FULL SITE)
         run: |
+          mkdir -p output
           quarkdown c Informe_Final_Control.qd -o output/
 
-      - name: Debug output (ver qué generó)
+      - name: Install Puppeteer
         run: |
-          ls -R output
+          npm install puppeteer
 
-      - name: Upload artifact (GitHub Pages)
+      - name: Generate preview.png
+        run: |
+          cat << 'EOF' > generate-preview.js
+          const puppeteer = require('puppeteer');
+
+          (async () => {
+            const browser = await puppeteer.launch({
+              headless: true,
+              args: ['--no-sandbox', '--disable-setuid-sandbox'],
+              executablePath: '/usr/bin/google-chrome-stable'
+            });
+
+            const page = await browser.newPage();
+
+            await page.goto(`file://${process.cwd()}/output/index.html`, {
+              waitUntil: 'networkidle0'
+            });
+
+            await page.setViewport({ width: 1280, height: 800 });
+
+            await page.screenshot({
+              path: 'preview.png',
+              fullPage: true
+            });
+
+            await browser.close();
+          })();
+          EOF
+
+          node generate-preview.js
+
+      - name: Commit preview image
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add preview.png || true
+          git commit -m "auto: update preview" || true
+          git push || true
+
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./output
