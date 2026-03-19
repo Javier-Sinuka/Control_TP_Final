@@ -262,7 +262,7 @@ en modelado térmico y facilitan el diseño de controladores.
 Considerando un balance de energía linealizado alrededor del punto de operación, la dinámica de la temperatura del
 aire en la cámara se puede aproximar por:
 
-$ au_p \frac{d T(t)}{dt} + T(t) = K_p\,Q(t) + K_{d}\,d(t) $
+$ \tau_p \frac{d T(t)}{dt} + T(t) = K_p\,Q(t) + K_{d}\,d(t) $
 
 donde $ \tau_p $ es la constante de tiempo efectiva de la planta, $ K_p $ la ganancia térmica (°C/W), y $ d(t) $
 representa perturbaciones combinadas (variaciones de carga $ m_p $, humedad $ H_i $, temperatura ambiente $ T_{amb} $)
@@ -391,6 +391,277 @@ donde $ K_i $ es la constante integral. Los polos son:
 $ s = \frac{-(1 + K_c K_p) \pm \sqrt{(1 + K_c K_p)^2 - 4 \tau_p K_i K_p}}{2 \tau_p}. $
 
 Los polos dominantes son los de menor parte real absoluta (más cercanos al eje imaginario). En la práctica, para un secadero con constante de tiempo del orden de 200 s, lazo cerrado bien amortiguado con margen de fase razonable da polos dominantes reales negativos con valores típicos entre -0.01 y -0.05 1/s.
+
+## Especificaciones de diseño
+
+### Elección del dominio de especificación
+
+Para este trabajo se adopta el **dominio del tiempo** para definir las especificaciones de diseño.
+
+Esta elección resulta la más adecuada por tres motivos principales:
+
+- La variable controlada es la temperatura del aire, cuya evolución se interpreta de manera directa en función del tiempo.
+- El modelo propuesto para la planta es esencialmente de primer orden con dinámica lenta, por lo que los indicadores temporales describen bien el desempeño esperado.
+- Desde el punto de vista operativo, al proceso industrial le interesa saber si la temperatura alcanza la consigna con rapidez suficiente, sin oscilaciones excesivas y sin error permanente.
+
+Si bien el análisis en frecuencia también es útil para evaluar robustez, en este caso las exigencias de funcionamiento del secadero quedan mejor expresadas mediante error estacionario, sobrepasamiento y tiempo de establecimiento.
+
+### Especificaciones adoptadas
+
+Se propone que el sistema de control cumpla, ante un cambio escalón en la consigna de temperatura, las siguientes especificaciones:
+
+- **Error en estado estable:** $ e_{ss} = 0 $ frente a entrada escalón.
+- **Sobrepasamiento máximo:** $ M_p \le 10\% $.
+- **Tiempo de establecimiento:** $ t_s(2\%) \le 300\ \mathrm{s} $.
+
+Estas condiciones son razonables para un proceso térmico de secado, ya que:
+
+- un error estacionario nulo evita desvíos permanentes respecto de la temperatura de trabajo,
+- un sobrepasamiento acotado reduce el riesgo de sobrecalentamiento del producto, y
+- un tiempo de establecimiento del orden de pocos minutos es compatible con una planta cuya constante de tiempo nominal es aproximadamente $ \tau_p = 200\ \mathrm{s} $.
+
+### Definición de cada especificación
+
+#### Error en estado estable
+
+El error en estado estable se define como:
+
+$ e_{ss} = \lim_{t \to \infty} e(t) = \lim_{t \to \infty} \left[T_{ref}(t) - T(t)\right]. $
+
+Para el secadero se desea:
+
+$ e_{ss} = 0 $
+
+ante cambios escalón de consigna. Esto conduce naturalmente al uso de un controlador con acción integral, por ejemplo un PI, ya que la planta sola es de tipo 0 y con control puramente proporcional quedaría un error residual.
+
+#### Sobrepasamiento máximo
+
+El sobrepasamiento máximo se define como:
+
+$ M_p = \dfrac{T_{max} - T_{ref}}{T_{ref}} \cdot 100\% $
+
+para una respuesta al escalón, donde $ T_{max} $ es el valor máximo alcanzado por la salida.
+
+Se adopta como requisito:
+
+$ M_p \le 10\%. $
+
+En un proceso térmico este límite es importante porque temperaturas excesivas pueden perjudicar la calidad del secado, aumentar el consumo energético y apartar al sistema de la zona de linealización del modelo.
+
+#### Tiempo de establecimiento
+
+El tiempo de establecimiento se define como el tiempo necesario para que la respuesta permanezca dentro de una banda del 2 % alrededor del valor final:
+
+$ |T(t) - T(\infty)| \le 0.02\,|T(\infty)|. $
+
+Se fija como objetivo:
+
+$ t_s \le 300\ \mathrm{s}. $
+
+Este valor representa una mejora respecto de la dinámica natural de la planta y permite rechazar perturbaciones térmicas con una velocidad adecuada sin exigir una acción de control excesivamente agresiva.
+
+### Verificación de realizabilidad
+
+Debe verificarse ahora si estas especificaciones son compatibles con el modelo adoptado. Para ello se considera un controlador PI:
+
+$ C(s) = K_c + \dfrac{K_i}{s}. $
+
+Combinado con la planta:
+
+$ G_p(s) = \dfrac{K_p}{\tau_p s + 1}, \qquad K_p = 0.02,\quad \tau_p = 200\ \mathrm{s}, $
+
+la ecuación característica de lazo cerrado resulta:
+
+$ \tau_p s^2 + (1 + K_c K_p)s + K_i K_p = 0. $
+
+Comparando con el polinomio patrón de segundo orden:
+
+$ s^2 + 2 \zeta \omega_n s + \omega_n^2, $
+
+puede buscarse un comportamiento con amortiguamiento aproximado $ \zeta \approx 0.7 $, valor para el cual el sobrepasamiento es menor al 10 %.
+
+Además, usando la aproximación:
+
+$ t_s(2\%) \approx \dfrac{4}{\zeta \omega_n}, $
+
+la condición $ t_s \le 300\ \mathrm{s} $ exige aproximadamente:
+
+$ \zeta \omega_n \ge \dfrac{4}{300} = 0.0133. $
+
+Tomando, por ejemplo:
+
+$ \zeta = 0.7,\qquad \omega_n \approx 0.019\ \mathrm{rad/s}, $
+
+se obtiene:
+
+- $ M_p \approx 4.6\% $,
+- $ t_s \approx \dfrac{4}{0.7 \cdot 0.019} \approx 300\ \mathrm{s} $. 
+
+Igualando coeficientes con $ \tau_p = 200\ \mathrm{s} $ y $ K_p = 0.02 $, resultan valores orientativos del controlador:
+
+- $ K_c \approx 216 $,
+- $ K_i \approx 3.6 $. 
+
+Estos valores son físicamente plausibles dentro del modelo linealizado y no implican requerimientos incompatibles con la naturaleza lenta del proceso. Además:
+
+- el actuador tiene una constante de tiempo nominal pequeña frente a la de la planta ($ \tau_a \approx 5\ \mathrm{s} \ll \tau_p $),
+- el sensor es mucho más rápido que la dinámica térmica principal,
+- y el nivel de amortiguamiento adoptado evita respuestas oscilatorias severas.
+
+Por lo tanto, **las especificaciones seleccionadas son realizables** para el secadero modelado, siempre que el diseño final del PI contemple saturación del actuador y se mantenga la operación alrededor del punto nominal de linealización.
+
+## Diseño del controlador
+
+### Criterio general de diseño
+
+Una vez definidas las especificaciones de desempeño, corresponde seleccionar una estructura de controlador apropiada para la planta térmica propuesta:
+
+$ G_p(s) = \dfrac{K_p}{\tau_p s + 1}, \qquad K_p = 0.02,\quad \tau_p = 200\ \mathrm{s}. $
+
+Dado que se trata de una planta estable, lenta y de primer orden, el controlador más conveniente desde el punto de vista práctico es un **PI o PID**. La acción integral permite eliminar el error en estado estable ante escalones de consigna, mientras que la acción derivativa puede utilizarse, si fuese necesario, para mejorar el amortiguamiento y anticipar variaciones.
+
+En este trabajo se presentan las técnicas solicitadas y se adopta como solución principal un **controlador PI obtenido por cancelación de polos dominantes**, por ser el diseño más simple y físicamente razonable para un proceso térmico de estas características. También se deja planteado un diseño PID como alternativa.
+
+### Método de cancelación de polos dominantes
+
+Se propone un controlador PI de la forma:
+
+$ C_{PI}(s) = K_c\left(1 + \dfrac{1}{T_i s}\right). $
+
+La planta posee un polo en:
+
+$ s = -\dfrac{1}{\tau_p} = -\dfrac{1}{200} = -0.005\ \mathrm{s^{-1}}. $
+
+Si se elige:
+
+$ T_i = \tau_p = 200\ \mathrm{s}, $
+
+entonces el cero del PI queda en:
+
+$ s = -\dfrac{1}{T_i} = -0.005\ \mathrm{s^{-1}}, $
+
+cancelando el polo dominante de la planta. En consecuencia:
+
+$ C_{PI}(s)G_p(s) = K_c\left(1 + \dfrac{1}{200s}\right)\dfrac{0.02}{200s+1} = \dfrac{0.02K_c}{200s}. $
+
+El lazo cerrado resultante es:
+
+$ \dfrac{T(s)}{T_{ref}(s)} = \dfrac{0.02K_c}{200s + 0.02K_c}. $
+
+Se obtiene así una dinámica de primer orden, sin sobrepasamiento, con error estacionario nulo frente a escalón.
+
+La constante de tiempo de lazo cerrado queda:
+
+$ \tau_{cl} = \dfrac{200}{0.02K_c} = \dfrac{10000}{K_c}. $
+
+Usando el criterio de tiempo de establecimiento para un primer orden:
+
+$ t_s(2\%) \approx 4\tau_{cl} = \dfrac{40000}{K_c}. $
+
+Imponiendo la especificación:
+
+$ t_s \le 300\ \mathrm{s}, $
+
+resulta:
+
+$ \dfrac{40000}{K_c} \le 300 \Rightarrow K_c \ge 133.3. $
+
+Se adopta el valor:
+
+$ K_c = 150. $
+
+Por lo tanto, el controlador propuesto por este método es:
+
+$ C_{PI}(s) = 150\left(1 + \dfrac{1}{200s}\right). $
+
+Con esta elección:
+
+- el error en estado estable es nulo,
+- el sobrepasamiento es aproximadamente cero,
+- el tiempo de establecimiento es:
+
+$ t_s \approx \dfrac{40000}{150} \approx 267\ \mathrm{s}, $
+
+cumpliendo las especificaciones adoptadas.
+
+### Método de la bisectriz
+
+El método de la bisectriz se emplea habitualmente sobre el lugar de las raíces para ubicar polos dominantes deseados y determinar la posición de los ceros y polos del compensador. A partir de las especificaciones temporales seleccionadas puede proponerse un par de polos dominantes aproximados:
+
+$ \zeta \approx 0.7,\qquad \omega_n \approx 0.019\ \mathrm{rad/s}, $
+
+de donde:
+
+$ s_d = -\zeta\omega_n \pm j\,\omega_n\sqrt{1-\zeta^2}\approx -0.0133 \pm j\,0.0136. $
+
+En un diseño por bisectriz, este punto deseado se ubica en el plano $ s $ y luego se determina un compensador de adelanto del tipo:
+
+$ C_a(s)=K_c\dfrac{T s + 1}{\alpha T s + 1}, \qquad 0 < \alpha < 1, $
+
+de manera que el lugar de raíces pase por $ s_d $. Geométricamente, el cero y el polo del compensador se escogen para aportar el ángulo faltante según el criterio de fase.
+
+Para la planta del secadero, esta técnica es perfectamente aplicable; sin embargo, dado que la planta original ya es de primer orden y no presenta problemas severos de estabilidad, su uso no resulta tan directo ni tan económico como el diseño PI por cancelación. Por ello se considera una **alternativa válida**, pero no la opción principal seleccionada.
+
+### Métodos de compensación en frecuencia
+
+Otra posibilidad es diseñar el controlador en el dominio de la frecuencia, fijando especificaciones de robustez como margen de fase y margen de ganancia. En ese caso podrían adoptarse, por ejemplo, criterios como:
+
+- error estacionario nulo ante escalón,
+- margen de fase del orden de $ 50^\circ $ a $ 60^\circ $,
+- frecuencia de cruce compatible con la dinámica de la planta, del orden de $ 0.01 $ a $ 0.02\ \mathrm{rad/s} $. 
+
+Con este enfoque pueden plantearse:
+
+- un **compensador de adelanto**, si se desea aumentar margen de fase y acelerar la respuesta,
+- un **compensador de atraso**, si se busca mejorar precisión estacionaria con mínima modificación del transitorio,
+- o un **adelanto-atraso**, si se pretende combinar ambas ventajas.
+
+En el secadero de yerba mate, la compensación en frecuencia sería especialmente útil si se priorizara robustez ante incertidumbre de parámetros o si se contara con una identificación experimental más precisa del comportamiento dinámico. No obstante, para el nivel de modelado actual, el método temporal con PI ofrece una solución más directa y suficiente.
+
+### Diseño de un controlador PID
+
+Como alternativa más general, puede proponerse un controlador PID:
+
+$ C_{PID}(s) = K_c\left(1 + \dfrac{1}{T_i s} + T_d s\right). $
+
+Al cerrar el lazo con la planta de primer orden, la ecuación característica queda:
+
+$ \left(200T_i + 0.02K_cT_iT_d\right)s^2 + T_i(1 + 0.02K_c)s + 0.02K_c = 0. $
+
+Si se desea reproducir una dinámica de segundo orden equivalente con:
+
+$ \zeta = 0.7,\qquad \omega_n = 0.019\ \mathrm{rad/s}, $
+
+y se fija un tiempo derivativo moderado:
+
+$ T_d = 10\ \mathrm{s}, $
+
+se obtienen valores orientativos:
+
+- $ K_c \approx 294 $,
+- $ T_i \approx 63\ \mathrm{s} $,
+- $ T_d = 10\ \mathrm{s} $. 
+
+Por lo tanto, un PID posible para este sistema es:
+
+$ C_{PID}(s) = 294\left(1 + \dfrac{1}{63s} + 10s\right). $
+
+Este controlador también satisface, en el modelo nominal, error estacionario nulo y una respuesta suficientemente rápida y amortiguada. Sin embargo, en un proceso térmico real la acción derivativa puede amplificar ruido de medición y no siempre aporta beneficios significativos frente a un PI correctamente ajustado.
+
+### Controlador seleccionado
+
+Aunque se ha verificado que un PID también puede diseñarse para la planta propuesta, se adopta como solución recomendada el siguiente controlador:
+
+$ \boxed{C(s) = 150\left(1 + \dfrac{1}{200s}\right)} $
+
+Las razones de esta elección son:
+
+- cumple las especificaciones de diseño establecidas,
+- elimina el error en estado estable,
+- no introduce una acción derivativa innecesaria para una planta térmica lenta,
+- y su implementación industrial resulta más simple y robusta.
+
+En consecuencia, el controlador PI diseñado por cancelación de polos dominantes constituye la alternativa más adecuada para el secadero de yerba mate dentro del marco del presente trabajo.
 
 ---
 
