@@ -977,20 +977,39 @@ Por lo tanto, la simulación confirma que el diseño propuesto no solo funciona 
 
 ---
 
-## Bibliografía
+## Conclusiones
 
-1. INYM – Folleto: Proceso de Elaboración de la Yerba Mate Argentina. Disponible en: [https://inym.org.ar/descargar/publicaciones/material-de-consulta/folletos/3080-folleto-proceso-de-elaboracion-de-la-yerba-mate-argentina.html](https://inym.org.ar/descargar/publicaciones/material-de-consulta/folletos/3080-folleto-proceso-de-elaboracion-de-la-yerba-mate-argentina.html)
+El desarrollo realizado permitió pasar desde una descripción cualitativa del secadero de yerba mate a un planteo formal de control realimentado, con modelo dinámico, especificaciones, diseño de controlador y validación por simulación. Desde el punto de vista técnico, el aporte central del trabajo fue demostrar que un proceso térmico industrial, aun siendo lento y afectado por perturbaciones, puede ser regulado de manera efectiva mediante una estrategia PI correctamente ajustada.
 
-2. Ruta de la Yerba Mate – Proceso de Elaboración. Disponible en: [https://www.rutadelayerbamate.org.ar/yerba-mate/proceso-de-elaboracion/](https://www.rutadelayerbamate.org.ar/yerba-mate/proceso-de-elaboracion/)
+La secuencia de mejoras introducidas a lo largo del informe puede resumirse del siguiente modo:
 
-3. INTA – Los secaderos de yerba mate y las Buenas Prácticas de Manufactura. Disponible en: [https://repositorio.inta.gob.ar/xmlui/bitstream/handle/20.500.12123/1072/INTA_CRMisiones_EEACerroAzul_Arndt_G_Los_secaderos_de_yerba_mate.pdf?isAllowed=y&sequence=1](https://repositorio.inta.gob.ar/xmlui/bitstream/handle/20.500.12123/1072/INTA_CRMisiones_EEACerroAzul_Arndt_G_Los_secaderos_de_yerba_mate.pdf?isAllowed=y&sequence=1)
+- En una primera etapa se identificó la variable relevante del proceso, el sensor, el actuador, las perturbaciones y las no linealidades dominantes.
+- Luego se obtuvo un modelo linealizado de primer orden, suficiente para representar la dinámica térmica en torno al punto nominal.
+- A partir de ese modelo se definieron especificaciones temporales realizables y se diseñó un controlador PI por cancelación de polos dominantes.
+- Finalmente, se validó el desempeño del sistema mediante simulaciones nominales y no lineales, incorporando dinámica de sensor, dinámica de actuador, saturación y variaciones paramétricas.
 
-4. Normativa Argentina / INYM – Resolución 287/2022. Disponible en: [https://www.argentina.gob.ar/normativa/nacional/resoluci%C3%B3n-287-2022-370884/texto](https://www.argentina.gob.ar/normativa/nacional/resoluci%C3%B3n-287-2022-370884/texto)
+La comparación cuantitativa entre el sistema inicial sin mejoras y el sistema final controlado muestra mejoras claras y medibles:
 
-5. OMEGA Engineering – Termopar: Tipos y Aplicaciones. Disponible en: [https://mx.omega.com/prodinfo/termopar.html](https://mx.omega.com/prodinfo/termopar.html)
+- El tiempo de establecimiento pasó de $ 781.5\ \mathrm{s} $ a $ 260.5\ \mathrm{s} $, lo que representa una reducción aproximada del **66.7 %**.
+- En el caso con no linealidades, el tiempo de establecimiento fue de $ 279.5\ \mathrm{s} $, lo que todavía implica una mejora del **64.2 %** respecto del sistema original.
+- Frente a una perturbación permanente, el error residual se redujo de $ 5.99\ ^\circ\mathrm{C} $ a $ 0.008\ ^\circ\mathrm{C} $ en el modelo lineal, equivalente a una mejora del **99.9 %** en capacidad de rechazo.
+- Bajo no linealidades y variación paramétrica, el error residual quedó en $ 0.126\ ^\circ\mathrm{C} $, lo que representa una mejora aproximada del **97.9 %** respecto del caso sin mejoras.
 
-6. National Instruments – Signal Conditioning Requirements for Thermocouples. Disponible en: [https://www.ni.com/docs/en-US/bundle/ni-daqmx/page/sigcontherm.html](https://www.ni.com/docs/en-US/bundle/ni-daqmx/page/sigcontherm.html)
+Estos resultados tienen una interpretación de ingeniería directa. La reducción del tiempo de establecimiento indica que el secadero puede alcanzar más rápidamente su condición de operación, mejorando la productividad y reduciendo el tiempo en que el proceso trabaja fuera de consigna. Por otra parte, la disminución drástica del error frente a perturbaciones demuestra que la acción integral del controlador resulta fundamental para compensar cambios en la carga térmica, humedad inicial del producto y demás incertidumbres operativas.
 
-7. National Instruments – Thermocouples. Disponible en: [https://www.ni.com/docs/en-US/bundle/ni-daqmx/page/thermocouples.html](https://www.ni.com/docs/en-US/bundle/ni-daqmx/page/thermocouples.html)
+Desde el punto de vista conceptual, el trabajo permitió aplicar de manera integrada los principales contenidos de la asignatura:
 
-8. National Instruments – Signal Conditioning. Disponible en: [https://www.ni.com/docs/en-US/bundle/ni-daqmx/page/sigcon.html](https://www.ni.com/docs/en-US/bundle/ni-daqmx/page/sigcon.html)
+- modelado de sistemas físicos,
+- linealización alrededor de un punto de operación,
+- análisis de estabilidad,
+- definición de especificaciones de desempeño,
+- diseño de controladores clásicos,
+- e interpretación de la respuesta temporal y de la acción de control.
+
+Asimismo, la incorporación de no linealidades en la etapa de simulación permitió verificar una cuestión importante: el modelo lineal no describe completamente al proceso real, pero sí constituye una aproximación útil para el diseño inicial del controlador. Aun cuando la dinámica no lineal degrada parcialmente el desempeño ideal, el sistema controlado mantiene estabilidad, buen seguimiento de referencia y fuerte rechazo a perturbaciones, lo cual valida la estrategia adoptada.
+
+En síntesis, el análisis realizado demuestra que la incorporación de realimentación, sensado adecuado y un controlador PI bien ajustado produce una mejora técnica sustancial en el comportamiento del secadero de yerba mate. El sistema final no solo cumple las especificaciones planteadas, sino que también exhibe robustez razonable frente a efectos no ideales del proceso, lo que convierte a la solución propuesta en una alternativa técnicamente consistente dentro del alcance del presente trabajo.
+
+---
+
+.bibliography {bibliografia.bib} style:{ieeetr} title:{Bibliografía}
