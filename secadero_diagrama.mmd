@@ -1,0 +1,14 @@
+flowchart TD
+  Tref[(Consigna T_ref °C)]
+  Ts[Termocupla]
+  Tm[Transmisor Tm °C / V]
+  Comp[Comparador: e_t = T_ref - T_m]
+  Ctrl[Controlador C_s]
+  Act[Generador de calor Q_t -W / kW-]
+  Plant[Secadero T_t °C]
+  Tamb((Perturbaciones: T_amb, m_p, H_i))
+  Tref --> Comp
+  Ts --> Tm --> Comp
+  Comp --> Ctrl --> Act --> Plant
+  Tamb -.-> Plant
+  Plant --> Ts

@@ -1,0 +1,23 @@
+{
+  "name": "control_tp_final",
+  "version": "1.0.0",
+  "description": "## 🧠 Sistema: Secadero de Yerba Mate",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Javier-Sinuka/Control_TP_Final.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Javier-Sinuka/Control_TP_Final/issues"
+  },
+  "homepage": "https://github.com/Javier-Sinuka/Control_TP_Final#readme",
+  "dependencies": {
+    "@mermaid-js/mermaid-cli": "^11.12.0"
+  }
+}
