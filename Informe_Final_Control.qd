@@ -313,6 +313,87 @@ Estos valores son orientativos: determinar $ K_p $ y $ \tau_p $ experimentalment
 - Verificar linealidad por varias amplitudes de prueba y documentar rangos de validez.
 
 Con esto queda definida la base para el diseño del controlador (PID, o diseño por asignación de polos/raíz-locus) y para simulaciones temporales que comparen respuesta con perturbaciones.
+
+## Análisis del comportamiento dinámico
+
+### Análisis de estabilidad absoluta
+
+Para el modelo de planta de primer orden propuesto:
+
+$ G_p(s) = \dfrac{K_p}{\tau_p s + 1} $
+
+El denominador del lazo en abierto (sin controlador) es $ \tau_p s + 1 $. Tiene un polo en $ s = -1/\tau_p $, que es negativo para $ \tau_p > 0 $. Por lo tanto la planta es absolutamente estable.
+
+En lazo cerrado con un controlador PI o PID típico, la función característica es del tipo:
+
+$ 1 + C(s) G_p(s) = 0 $. 
+
+Si se considera un controlador proporcional $ C(s) = K_c $, la función característica se convierte en:
+
+$ 1 + K_c \dfrac{K_p}{\tau_p s + 1} = 0 \Rightarrow \tau_p s + 1 + K_c K_p = 0 $.
+
+El polo de lazo cerrado está en:
+
+$ s = -\dfrac{1 + K_c K_p}{\tau_p} $.
+
+Siempre es negativo para $ K_c > -1/K_p $; en la práctica $ K_c > 0 $, por lo que el lazo es estable.
+
+### Análisis de la respuesta temporal
+
+Con lazo cerrado proporcional simple y planta de primer orden, la respuesta temporal a un escalón de consigna $ \Delta T_{ref} $ es:
+
+$ T(t) = T_{0} + \Delta T_{ref}\left(1 - e^{-t/\tau_{cl}}\right), $
+
+con constante de tiempo efectiva de lazo cerrado:
+
+$ \tau_{cl}=\dfrac{\tau_p}{1 + K_c K_p}. $
+
+Esto implica que al aumentar la ganancia de control $ K_c $ se reduce el tiempo de establecimiento y la respuesta se hace más rápida.
+
+### Verificación del modelo matemático a partir de la respuesta temporal
+
+Para validar el modelo con datos experimentales se sigue este procedimiento:
+
+1. Aplicar un escalón de potencia controlada $ \Delta Q $.
+2. Medir $ T(t) $ y estimar el valor estacionario $ T_{\infty} $.
+3. Calcular ganancia experimental:
+
+$ K_{p,exp} = \dfrac{T_{\infty} - T_0}{\Delta Q}. $
+
+4. Obtener la constante de tiempo a 63% del paso:
+
+$ \tau_{p,exp} \approx t_{63\%}. $
+
+5. Comparar con los parámetros del modelo nominal y ajustar $ K_p, \tau_p $ si la desviación es baja (< 10 %) para mantener validez.
+
+La verificación se completa con una prueba de validación (pasos de distinta amplitud) para verificar linealidad en el rango de operación.
+
+### Determinación del tipo de sistema
+
+Considerando el modelo linealizado de planta con sensor y actuador incluidos, la señal de consigna a temperatura generalmente tiene una relación de primer orden con retardo pequeño. 
+
+El sistema es de tipo 0 (no tiene integración en planta), ya que la función de transferencia parcial tiene polo en el semiplano izquierdo y ganancia finita.
+
+En lazo cerrado con controlador PID, el tipo del sistema (0, 1, 2) se puede modificar agregando un término integrador en el controlador. Para un controlador PI/PID clásico, el lazo se comporta como sistema de tipo 1 respecto a la variable de salida del dominador del error, lo cual permite eliminar error en estado estacionario frente a escalones de consigna.
+
+### Polos dominantes
+
+Para un lazo de primer orden con controlador proporcional, el único polo de lazo cerrado es dominante y está en:
+
+$ s_{dom} = -\dfrac{1 + K_c K_p}{\tau_p}. $
+
+Con un controlador PI, la función característica de lazo cerrado es:
+
+$ \tau_p s^2 + (1 + K_c K_p) s + K_i K_p = 0, $
+
+donde $ K_i $ es la constante integral. Los polos son:
+
+$ s = \frac{-(1 + K_c K_p) \pm \sqrt{(1 + K_c K_p)^2 - 4 \tau_p K_i K_p}}{2 \tau_p}. $
+
+Los polos dominantes son los de menor parte real absoluta (más cercanos al eje imaginario). En la práctica, para un secadero con constante de tiempo del orden de 200 s, lazo cerrado bien amortiguado con margen de fase razonable da polos dominantes reales negativos con valores típicos entre -0.01 y -0.05 1/s.
+
+---
+
 ## Bibliografía
 
 1. INYM – Folleto: Proceso de Elaboración de la Yerba Mate Argentina. Disponible en: [https://inym.org.ar/descargar/publicaciones/material-de-consulta/folletos/3080-folleto-proceso-de-elaboracion-de-la-yerba-mate-argentina.html](https://inym.org.ar/descargar/publicaciones/material-de-consulta/folletos/3080-folleto-proceso-de-elaboracion-de-la-yerba-mate-argentina.html)
